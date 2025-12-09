@@ -5,9 +5,9 @@
 <li>Ubuntu requirements: <strong>sudo apt-get install php-curl</strong> </li>
 <li>MySQL instructions: </li>
 <ol>
-<li>CREATE DATABASE coperato; </li>
-<li>CREATE USER 'coperato'@'localhost' IDENTIFIED BY 'password'; </li>
-<li>GRANT ALL PRIVILEGES ON coperato.* TO 'coperato'@'localhost'; </li>
+<li>CREATE DATABASE planets; </li>
+<li>CREATE USER 'planets_user'@'localhost' IDENTIFIED BY 'your_strong_password'; </li>
+<li>GRANT ALL PRIVILEGES ON planets_user.* TO 'planets'@'localhost'; </li>
 <li>FLUSH PRIVILEGES; </li>
 </ol>
 <li>To create DB tables run: <strong>php artisan migrate</strong></li>

@@ -9,7 +9,7 @@ class Film extends Model
 {
     use HasFactory;
     protected $table = 'films';
-
+    protected $guarded = [];
     protected $fillable = [
         'planet_id',
         'title',
