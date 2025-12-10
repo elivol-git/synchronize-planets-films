@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Planet;
 use App\Models\Film;
+use App\Notifications\SyncFailedNotification;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
