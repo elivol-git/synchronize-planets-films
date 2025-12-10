@@ -85,6 +85,34 @@ body {
     font-family: 'Arial', sans-serif;
     transition: background 0.4s ease, color 0.4s ease;
 }
+.theme-toggle-wrapper {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+    z-index: 9999;
+}
+
+.theme-toggle {
+
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(6px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.5);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.12);
+}
+
+#themeIcon {
+    font-size: 24px;
+    pointer-events: none;
+}
 
 /* ----- DATAPAD FRAME ----- */
 .page-frame {

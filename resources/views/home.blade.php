@@ -12,11 +12,13 @@
     <script src="{{ asset('js/theme-toggle.js') }}"></script>
 </head>
 <body>
-<div id="themeToggle" class="theme-toggle">
-    Mode: light
+<div class="theme-toggle-wrapper">
+    <div id="themeToggle" class="theme-toggle">
+        <span id="themeIcon">☀️</span>
+    </div>
 </div>
 <div class="header">
-    <img src="{{ asset('images/logo_gold.png') }}" alt="Star Wars Logo" class="logo">
+    <a href="/"><img src="{{ asset('images/logo_gold.png') }}" alt="Star Wars Logo" class="logo"></a>
     <h1 class="title">Star Wars Planets & Films</h1>
 </div>
 
