@@ -35,15 +35,62 @@ class SynchronizePlanetsProcedure
         try {
             Log::info("Planet sync started");
 
+            // 1) Safe fetch for first page (cache OR remote)
+            $firstPage = $this->fetchJsonWithCache(self::INIT_PLANETS_SOURCE);
+
+            // 2) Validate basic JSON structure
+            $this->assertValidJson($firstPage);
+
+            // 3) NOW it's safe to clear tables
             $this->clearTables();
-            $this->syncPlanets();
+
+            // 4) Sync all pages using bootstrapped first page
+            $this->syncPlanets($firstPage);
 
             Log::info("Planet sync completed");
+
         } catch (\Throwable $e) {
+
             \Notification::route('mail', 'elivol333@gmail.com')
                 ->notify(new SyncFailedNotification($e->getMessage()));
 
+            Log::error("Planet sync failed", [
+                "error" => $e->getMessage()
+            ]);
+
             throw $e;
+        }
+    }
+
+    protected function fetchJsonWithCache(string $url): array
+    {
+        // 1. Try cache first — no remote hit if available
+        $cached = cache()->get("swapi:$url");
+
+        if ($cached) {
+            return json_decode($cached, true);
+        }
+
+        // 2. Cache empty → fetch remote
+        $response = $this->client->get($url);
+
+        if ($response->getStatusCode() !== 200) {
+            // If remote fails AND no cache → job must stop
+            throw new \Exception("SWAPI unreachable and no cached data available");
+        }
+
+        $body = $response->getBody()->getContents();
+
+        // Save in cache
+        cache()->put("swapi:$url", $body, 3600);
+
+        return json_decode($body, true);
+    }
+
+    protected function assertValidJson(array $json): void
+    {
+        if (!isset($json['results']) || !is_array($json['results'])) {
+            throw new \Exception("Invalid SWAPI JSON structure");
         }
     }
 
@@ -57,23 +104,23 @@ class SynchronizePlanetsProcedure
         Log::info("Tables truncated");
     }
 
-    protected function syncPlanets(): void
+    protected function syncPlanets(array $firstPage): void
     {
-        $nextPage = self::INIT_PLANETS_SOURCE;
+        $page = $firstPage;
 
-        while ($nextPage) {
+        while ($page) {
 
-            $response = cache()->remember("swapi:{$nextPage}", 3600, function () use ($nextPage) {
-                return $this->client->get($nextPage)->getBody()->getContents();
-            });
-
-            $data = json_decode($response, true);
-
-            foreach ($data['results'] as $planet) {
+            foreach ($page['results'] as $planet) {
                 $this->storePlanetWithFilms($planet);
             }
 
-            $nextPage = $data['next'] ?? null;
+            $next = $page['next'] ?? null;
+
+            if ($next) {
+                $page = $this->fetchJsonWithCache($next);
+            } else {
+                break;
+            }
         }
     }
 
@@ -97,11 +144,7 @@ class SynchronizePlanetsProcedure
 
     protected function storeFilm(string $filmUrl, int $planetId): void
     {
-        $filmDataJson = cache()->remember("swapi:film:$filmUrl", 3600, function () use ($filmUrl) {
-            return $this->client->get($filmUrl)->getBody()->getContents();
-        });
-
-        $filmData = json_decode($filmDataJson, true);
+        $filmData = $this->fetchJsonWithCache($filmUrl);
 
         unset(
             $filmData['characters'],
