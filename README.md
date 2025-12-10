@@ -1,66 +1,136 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌌 Film & Planets Synchronizer (SWAPI → Laravel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This Laravel project synchronizes **Star Wars planets and their related films** from  
+the public API **https://swapi.dev** into a local MySQL database.  
+It also includes a scheduler-ready command, Horizon monitoring, and Supervisor setup.
 
-## About Laravel
+## 🚀 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Fetch & store planets and their films from SWAPI
+- MySQL storage with relational tables
+- Artisan command to sync data anytime
+- Laravel Horizon dashboard for queue monitoring
+- Supervisor integration for production queue workers
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📁 Project Structure
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+app/
+├── Console/Commands/       # create:sync-planets command
+├── Models/                 # Planet and Film models
+└── Services/               # SynchronizePlanetsProcedure service
 
-## Learning Laravel
+database/
+├── migrations/             # Migrations for planets & films tables
+└── seeders/                # Optional seeders
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+routes/
+└── web.php                 # Landing page displaying planets/films
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+resources/views/
+└── ...                     # Blade templates
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ✅ Requirements
 
-## Laravel Sponsors
+- PHP 8.2+
+- Laravel 12
+- MySQL 8+
+- Composer
+- Ubuntu: php-curl package
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## 🛠 Installation & Setup
 
-### Premium Partners
+git clone https://github.com/your/repo.git
+cd planets
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+composer install
+cp .env.example .env
+php artisan key:generate
 
-## Contributing
+Update `.env`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+DB_DATABASE=planets
+DB_USERNAME=planets_user
+DB_PASSWORD=your_strong_password
 
-## Code of Conduct
+## 🗄 MySQL Database Setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+CREATE DATABASE planets CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-## Security Vulnerabilities
+CREATE USER 'planets_user'@'localhost' IDENTIFIED BY 'your_strong_password';
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+GRANT ALL PRIVILEGES ON planets.* TO 'planets_user'@'localhost';
 
-## License
+FLUSH PRIVILEGES;
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🧱 Create Database Tables (Migrations)
+
+php artisan migrate
+
+## 🔄 Synchronize SWAPI Data
+
+php artisan create:sync-planets
+
+## 📊 Laravel Horizon (Queue Dashboard)
+
+composer require laravel/horizon
+php artisan horizon:install
+php artisan migrate
+
+Access dashboard:
+
+http://film-planets.test/horizon
+
+## 🖥 Supervisor Setup (Production Only)
+
+sudo apt update
+sudo apt install supervisor
+sudo systemctl enable supervisor
+sudo systemctl start supervisor
+
+Create Horizon config:
+
+[program:horizon]
+process_name=%(program_name)s
+command=php /var/www/planets/artisan horizon
+autostart=true
+autorestart=true
+user=www-data
+redirect_stderr=true
+stdout_logfile=/var/www/planets/storage/logs/horizon.log
+stopwaitsecs=3600
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start horizon
+
+## ▶ Development Server
+
+php artisan serve
+
+## 🧰 Useful Artisan Commands
+
+| Action | Command |
+|--------|---------|
+| Migrate DB | php artisan migrate |
+| Sync data | php artisan create:sync-planets |
+| Clear caches | php artisan optimize:clear |
+| Start Horizon | php artisan horizon |
+
+## 🔐 Fix Linux Permissions (if needed)
+
+sudo chown -R $USER:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+## ❗ Troubleshooting
+
+Permission denied on laravel.log  
+sudo chmod -R 775 storage/logs
+
+Redis “Connection refused”  
+sudo apt install redis-server
+sudo systemctl enable redis
+sudo systemctl start redis
+
+## 📜 License
+
+Open-source. Free to use & modify.
