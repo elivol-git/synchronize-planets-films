@@ -127,10 +127,8 @@ class SynchronizePlanetsProcedureTest extends TestCase
     /** @test */
     public function it_handles_exception_and_logs_error()
     {
-        // Fake notifications
         Notification::fake();
 
-        // Accept any call to Log::error
         Log::shouldReceive('error')->once()->withAnyArgs();
 
         $procedure = Mockery::mock(SynchronizePlanetsProcedure::class)->makePartial();
