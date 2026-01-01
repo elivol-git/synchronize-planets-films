@@ -38,11 +38,12 @@ h2 { margin-top: 30px; }
 }
 
 .planet-title {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .planet-row {
     display: flex;
+    align-items: flex-start;
     gap: 20px;
 }
 

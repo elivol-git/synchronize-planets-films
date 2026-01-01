@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\Planet;
 use App\Models\Film;
-use App\Notifications\SyncFailedNotification;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
@@ -25,67 +25,59 @@ class SynchronizePlanetsProcedure
 
     public function __construct()
     {
-        $this->client = new Client([
+        $this->client = new \GuzzleHttp\Client([
             'timeout' => 10,
             'http_errors' => false,
+//            'verify' => base_path('certs/cacert.pem'),
+            'verify' => false
         ]);
+
     }
 
     public function run(): void
     {
-        try {
-            Log::info("Planet sync started");
+        Log::info("Planet sync started");
 
-            // 1) Safe fetch for first page (cache OR remote)
-            $firstPage = $this->fetchJsonWithCache(self::INIT_PLANETS_SOURCE);
+        $firstPage = $this->fetchJsonWithCache(self::INIT_PLANETS_SOURCE);
 
-            // 2) Validate basic JSON structure
-            $this->assertValidJson($firstPage);
-
-            // 3) NOW it's safe to clear tables
-            $this->clearTables();
-
-            // 4) Sync all pages using bootstrapped first page
-            $this->syncPlanets($firstPage);
-
-            Log::info("Planet sync completed");
-
-        } catch (\Throwable $e) {
-
-            \Notification::route('mail', 'elivol333@gmail.com')
-                ->notify(new SyncFailedNotification($e->getMessage()));
-
-            Log::error("Planet sync failed", [
-                "error" => $e->getMessage()
-            ]);
-
-            throw $e;
+        if (!$firstPage) {
+            Log::warning("Planet sync aborted: no SWAPI data and no cache.");
+            throw new \Exception("Planet sync failed: SWAPI unreachable and no cache");
         }
+        Log::info("First page:". json_encode($firstPage).PHP_EOL);
+
+        $this->clearTables();
+
+        $this->syncPlanets($firstPage);
+
+        Log::info("Planet sync completed");
     }
 
-    protected function fetchJsonWithCache(string $url): array
+    protected function fetchJsonWithCache(string $url): ?array
     {
-        // 1. Try cache first — no remote hit if available
-        $cached = cache()->get("swapi:$url");
+        $cacheKey = "swapi:$url";
+        $cached = Cache::get($cacheKey);
 
         if ($cached) {
             return json_decode($cached, true);
         }
 
-        // 2. Cache empty → fetch remote
-        $response = $this->client->get($url);
+        try {
+            $response = $this->client->get($url);
 
-        if ($response->getStatusCode() !== 200) {
-            // If remote fails AND no cache → job must stop
-            throw new \Exception("SWAPI unreachable and no cached data available");
+            if ($response->getStatusCode() !== 200) {
+                throw new \Exception("SWAPI returned status " . $response->getStatusCode());
+            }
+
+            $body = $response->getBody()->getContents();
+            Cache::put($cacheKey, $body, 3600); // 1 hour
+            return json_decode($body, true);
+
+        } catch (\Throwable $e) {
+            Log::error("SWAPI fetch failed for $url", ['error' => $e->getMessage()]);
+
+            return null;
         }
-
-        $body = $response->getBody()->getContents();
-
-        // Save in cache
-        cache()->put("swapi:$url", $body, 3600);
-
-        return json_decode($body, true);
     }
 
     protected function assertValidJson(array $json): void

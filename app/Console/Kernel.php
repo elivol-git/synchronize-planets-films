@@ -9,20 +9,13 @@ use Illuminate\Support\Facades\Artisan;
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
-        Commands\SynchronizePlanets::class
+        Commands\SynchronizePlanets::class,
     ];
 
-
-    /**
-     * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
-     */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule):void
     {
         $schedule->job(new \App\Jobs\SynchronizePlanetsJob())
-            ->hourly()
+            ->everyMinute()
             ->withoutOverlapping()
             ->onOneServer();
     }
@@ -34,6 +27,8 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
+        parent::commands();
+
         $this->load(__DIR__.'/Commands');
         require base_path('routes/console.php');
     }

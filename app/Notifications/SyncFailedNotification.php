@@ -11,12 +11,11 @@ class SyncFailedNotification extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
+    public string $errorMessage;
+
+    public function __construct(string $errorMessage)
     {
-        //
+        $this->errorMessage = $errorMessage;
     }
 
     /**
