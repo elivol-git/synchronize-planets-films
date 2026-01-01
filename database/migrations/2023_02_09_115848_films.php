@@ -17,16 +17,15 @@ return new class extends Migration
 
             Schema::create('films', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('planet_id')->constrained('planets');
-                $table->string('title');
-                $table->integer('episode_id');
+                $table->string('title')->index();
+                $table->unsignedTinyInteger('episode_id')->index();
                 $table->text('opening_crawl');
-                $table->string('director')->nullable();
-                $table->string('producer');
+                $table->string('director')->default('')->nullable();
+                $table->string('producer')->default('');
                 $table->date('release_date');
-                $table->timestamp('created');
-                $table->timestamp('edited');
-                $table->string('url');
+                $table->timestamp('created')->nullable();
+                $table->timestamp('edited')->nullable();
+                $table->string('url')->default('');
                 $table->timestamps();
             });
         }

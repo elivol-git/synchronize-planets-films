@@ -16,18 +16,18 @@ return new class extends Migration
         if (!Schema::hasTable('planets')) {
             Schema::create('planets', function (Blueprint $table) {
                 $table->id();
-                $table->string('name');
-                $table->integer('rotation_period')->unsigned()->nullable();
-                $table->integer('orbital_period')->unsigned()->nullable();
-                $table->integer('diameter')->unsigned()->nullable();
-                $table->string('climate');
-                $table->string('gravity');
-                $table->string('terrain');
-                $table->integer('surface_water')->unsigned()->nullable();
-                $table->bigInteger('population')->unsigned()->nullable();
-                $table->timestamp('created');
-                $table->timestamp('edited');
-                $table->string('url');
+                $table->string('name')->index();
+                $table->unsignedInteger('rotation_period')->nullable();
+                $table->unsignedInteger('orbital_period')->nullable();
+                $table->unsignedInteger('diameter')->nullable();
+                $table->string('climate')->default('');
+                $table->string('gravity')->default('');
+                $table->string('terrain')->default('');
+                $table->decimal('surface_water', 5, 2)->unsigned()->nullable();
+                $table->unsignedBigInteger('population')->nullable();
+                $table->timestamp('created')->nullable();
+                $table->timestamp('edited')->nullable();
+                $table->string('url')->default('');
                 $table->timestamps();
             });
         }
