@@ -9,9 +9,7 @@ class Film extends Model
 {
     use HasFactory;
     protected $table = 'films';
-    protected $guarded = [];
     protected $fillable = [
-        'planet_id',
         'title',
         'episode_id',
         'opening_crawl',
@@ -24,15 +22,14 @@ class Film extends Model
     ];
 
     protected $casts = [
-        'planet_id' => 'integer',
-        'release_date' => 'date',
+        'release_date' => 'date:Y-m-d',
         'created' => 'datetime',
         'edited' => 'datetime',
     ];
 
-    public function planet()
+    public function planets(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsTo(Planet::class);
+        return $this->belongsToMany(Planet::class, 'film_planet');
     }
 
 }

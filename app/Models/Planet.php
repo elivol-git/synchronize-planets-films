@@ -9,7 +9,6 @@ class Planet extends Model
 {
     use HasFactory;
     protected $table = 'planets';
-    protected $guarded = [];
     protected $fillable = [
         'name',
         'rotation_period',
@@ -18,7 +17,7 @@ class Planet extends Model
         'climate',
         'gravity',
         'terrain',
-        'surface_water',
+        'float',
         'population',
         'created',
         'edited',
@@ -27,7 +26,7 @@ class Planet extends Model
 
     protected $casts = [
         'population' => 'integer',
-        'surface_water' => 'integer',
+        'surface_water' => 'decimal:2',
         'rotation_period' => 'integer',
         'orbital_period' => 'integer',
         'diameter' => 'integer',
@@ -35,9 +34,10 @@ class Planet extends Model
         'edited' => 'datetime',
     ];
 
-    public function films()
+    public function films(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Film::class);
+        return $this->belongsToMany(Film::class, 'film_planet');
     }
+
 
 }
