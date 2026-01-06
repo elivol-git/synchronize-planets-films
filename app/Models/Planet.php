@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Planet extends Model
 {
@@ -34,10 +35,14 @@ class Planet extends Model
         'edited' => 'datetime',
     ];
 
-    public function films(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function films(): BelongsToMany
     {
         return $this->belongsToMany(Film::class, 'film_planet');
     }
 
+    public function people(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'film_person');
+    }
 
 }

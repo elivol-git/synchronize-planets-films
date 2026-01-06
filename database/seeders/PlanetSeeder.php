@@ -3,12 +3,12 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Services\SynchronizePlanetsProcedure;
+use App\Services\SynchronizeStarWarsProcedure;
 
 class PlanetSeeder extends Seeder
 {
     public function run(): void
     {
-        app(SynchronizePlanetsProcedure::class)->run();
+        app(SynchronizeStarWarsProcedure::class)->run();
     }
 }

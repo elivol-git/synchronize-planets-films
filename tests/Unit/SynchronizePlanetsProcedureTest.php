@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Planet;
 use App\Models\Film;
-use App\Services\SynchronizePlanetsProcedure;
+use App\Services\SynchronizeStarWarsProcedure;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -32,7 +32,7 @@ class SynchronizePlanetsProcedureTest extends TestCase
     {
         Cache::shouldReceive('get')->once()->andReturn(json_encode(['results' => []]));
 
-        $procedure = new SynchronizePlanetsProcedure();
+        $procedure = new SynchronizeStarWarsProcedure();
 
         $method = (new \ReflectionClass($procedure))->getMethod('fetchJsonWithCache');
         $method->setAccessible(true);
@@ -56,7 +56,7 @@ class SynchronizePlanetsProcedureTest extends TestCase
         $clientMock = Mockery::mock(Client::class);
         $clientMock->shouldReceive('get')->andReturn($responseMock);
 
-        $procedure = new SynchronizePlanetsProcedure();
+        $procedure = new SynchronizeStarWarsProcedure();
 
         $reflection = new \ReflectionClass($procedure);
         $prop = $reflection->getProperty('client');
@@ -84,7 +84,7 @@ class SynchronizePlanetsProcedureTest extends TestCase
     /** @test */
     public function it_stores_planet_with_films(): void
     {
-        $procedure = new SynchronizePlanetsProcedure();
+        $procedure = new SynchronizeStarWarsProcedure();
 
         $planetData = [
             'name' => 'Tatooine',
@@ -111,7 +111,7 @@ class SynchronizePlanetsProcedureTest extends TestCase
     /** @test */
     public function it_runs_sync_planets_method_correctly(): void
     {
-        $procedure = Mockery::mock(SynchronizePlanetsProcedure::class)->makePartial();
+        $procedure = Mockery::mock(SynchronizeStarWarsProcedure::class)->makePartial();
         $procedure->shouldAllowMockingProtectedMethods();
 
         $procedure->shouldReceive('fetchJsonWithCache')->once()->andReturn(['results' => []]);
@@ -131,7 +131,7 @@ class SynchronizePlanetsProcedureTest extends TestCase
 
         Log::shouldReceive('error')->once()->withAnyArgs();
 
-        $procedure = Mockery::mock(SynchronizePlanetsProcedure::class)->makePartial();
+        $procedure = Mockery::mock(SynchronizeStarWarsProcedure::class)->makePartial();
         $procedure->shouldAllowMockingProtectedMethods();
         $procedure->shouldReceive('fetchJsonWithCache')->andThrow(new \Exception('Test failure'));
 

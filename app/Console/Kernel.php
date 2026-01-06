@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\SwapiResetCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Artisan;
@@ -9,15 +10,17 @@ use Illuminate\Support\Facades\Artisan;
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
-        Commands\SynchronizePlanets::class,
+        Commands\SynchronizeStarWars::class,
+        SwapiResetCommand::class,
     ];
 
     protected function schedule(Schedule $schedule):void
     {
-        $schedule->job(new \App\Jobs\SynchronizePlanetsJob())
+        //@todo unmark
+        /*$schedule->job(new \App\Jobs\SynchronizePlanetsJob())
             ->everyMinute()
             ->withoutOverlapping()
-            ->onOneServer();
+            ->onOneServer();*/
     }
 
     /**

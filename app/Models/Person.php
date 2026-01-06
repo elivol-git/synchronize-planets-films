@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\NormalizeNumbers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,9 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Person extends Model
 {
-    use HasFactory;
+    use HasFactory, NormalizeNumbers;
 
     protected $table = 'people';
+    public $timestamps = false;
 
     protected $fillable = [
         'name',
@@ -36,6 +38,15 @@ class Person extends Model
         'edited' => 'datetime',
     ];
 
+    public function setHeightAttribute($value): void
+    {
+        $this->attributes['height'] = $this->normalizeNumber($value);
+    }
+
+    public function setMassAttribute($value): void
+    {
+        $this->attributes['mass'] = $this->normalizeNumber($value);
+    }
 
     public function homeworld(): BelongsTo
     {

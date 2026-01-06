@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Notifications\SyncFailedNotification;
-use App\Services\SynchronizePlanetsProcedure;
+use App\Services\SynchronizeStarWarsProcedure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,7 +20,7 @@ class SynchronizePlanetsJob implements ShouldQueue
     public int $backoff = 15;          // Wait 15 sec between retries
     public int $timeout = 120;         // Max 2 minutes
 
-    public function handle(SynchronizePlanetsProcedure $sync): void
+    public function handle(SynchronizeStarWarsProcedure $sync): void
     {
         Log::info("Running SynchronizePlanetsJob...");
         $sync->run();

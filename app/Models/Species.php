@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\NormalizeNumbers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,9 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Species extends Model
 {
-    use HasFactory;
+    use HasFactory, NormalizeNumbers;
 
     protected $table = 'species';
+    public $timestamps = false;
 
     protected $fillable = [
         'name',
@@ -25,6 +27,15 @@ class Species extends Model
         'homeworld_id',
         'language',
     ];
+    public function setAverageHeightAttribute($value): void
+    {
+        $this->attributes['average_height'] = $this->normalizeNumber($value);
+    }
+
+    public function setAverageLifespanAttribute($value): void
+    {
+        $this->attributes['average_lifespan'] = $this->normalizeNumber($value);
+    }
 
     public function homeworld(): BelongsTo
     {
