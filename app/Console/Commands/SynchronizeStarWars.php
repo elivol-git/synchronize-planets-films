@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\SynchronizePlanetsJob;
 use App\Services\SynchronizeStarWarsProcedure;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class SynchronizeStarWars extends Command
 {
@@ -14,7 +15,7 @@ class SynchronizeStarWars extends Command
 
     protected $description = 'Synchronize Star Wars data from SWAPI';
 
-    public function handle(): int
+    public function handle(SynchronizeStarWarsProcedure $procedure): int
     {
         if ($this->option('fresh')) {
             $this->call('swapi:reset');
@@ -24,10 +25,10 @@ class SynchronizeStarWars extends Command
             dispatch(new SynchronizePlanetsJob());
             $this->info('SWAPI sync jobs dispatched');
         } else {
-            (new SynchronizeStarWarsProcedure())->run();
+            $procedure->run();
             $this->info('SWAPI synchronization completed');
         }
 
-        return Command::SUCCESS;
+        return CommandAlias::SUCCESS;
     }
 }

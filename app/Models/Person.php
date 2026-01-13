@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\PivotTables;
 use App\Models\Traits\NormalizeNumbers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,7 @@ class Person extends Model
         'eye_color',
         'birth_year',
         'gender',
+        'homeworld',
         'homeworld_id',
         'created',
         'edited',
@@ -31,21 +33,17 @@ class Person extends Model
     ];
 
     protected $casts = [
-        'height' => 'integer',
-        'mass' => 'integer',
         'homeworld_id' => 'integer',
         'created' => 'datetime',
         'edited' => 'datetime',
     ];
 
-    public function setHeightAttribute($value): void
+    public function numeric(): array
     {
-        $this->attributes['height'] = $this->normalizeNumber($value);
-    }
-
-    public function setMassAttribute($value): void
-    {
-        $this->attributes['mass'] = $this->normalizeNumber($value);
+        return [
+            'height',
+            'mass',
+        ];
     }
 
     public function homeworld(): BelongsTo
@@ -55,21 +53,21 @@ class Person extends Model
 
     public function films(): BelongsToMany
     {
-        return $this->belongsToMany(Film::class, 'film_person');
+        return $this->belongsToMany(Film::class, PivotTables::FILM_PERSON);
     }
 
     public function species(): BelongsToMany
     {
-        return $this->belongsToMany(Species::class, 'person_species');
+        return $this->belongsToMany(Species::class, PivotTables::PERSON_SPECIES);
     }
 
     public function vehicles(): BelongsToMany
     {
-        return $this->belongsToMany(Vehicle::class, 'person_vehicle');
+        return $this->belongsToMany(Vehicle::class, PivotTables::PERSON_VEHICLE);
     }
 
-    public function starships(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function starships(): BelongsToMany
     {
-        return $this->belongsToMany(Starship::class, 'person_starship');
+        return $this->belongsToMany(Starship::class, PivotTables::PERSON_STARSHIP);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\PivotTables;
 use App\Models\Traits\NormalizeNumbers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,55 +29,37 @@ class Starship extends Model
         'MGLT',
         'cargo_capacity',
         'consumables',
+        'url',
+        'created',
+        'edited',
     ];
 
-    public function setCostInCreditsAttribute($value): void
-    {
-        $this->attributes['cost_in_credits'] = $this->normalizeNumber($value);
-    }
+    protected $casts = [
+        'created' => 'datetime',
+        'edited' => 'datetime',
+    ];
 
-    public function setLengthAttribute($value): void
+    public function numeric(): array
     {
-        $this->attributes['length'] = $this->normalizeNumber($value);
-    }
-
-    public function setCrewAttribute($value): void
-    {
-        $this->attributes['crew'] = $this->normalizeNumber($value);
-    }
-
-    public function setPassengersAttribute($value): void
-    {
-        $this->attributes['passengers'] = $this->normalizeNumber($value);
-    }
-
-    public function setMaxAtmospheringSpeedAttribute($value): void
-    {
-        $this->attributes['max_atmosphering_speed'] = $this->normalizeNumber($value);
-    }
-
-    public function setHyperdriveRatingAttribute($value): void
-    {
-        $this->attributes['hyperdrive_rating'] = $this->normalizeNumber($value);
-    }
-
-    public function setMGLTAttribute($value): void
-    {
-        $this->attributes['MGLT'] = $this->normalizeNumber($value);
-    }
-
-    public function setCargoCapacityAttribute($value): void
-    {
-        $this->attributes['cargo_capacity'] = $this->normalizeNumber($value);
+        return [
+            'cost_in_credits',
+            'length',
+            'max_atmosphering_speed',
+            'crew',
+            'passengers',
+            'cargo_capacity',
+            'hyperdrive_rating',
+            'MGLT',
+        ];
     }
 
     public function films(): BelongsToMany
     {
-        return $this->belongsToMany(Film::class, 'film_starship', 'starship_id', 'film_id');
+        return $this->belongsToMany(Film::class, PivotTables::FILM_STARSHIP, 'starship_id', 'film_id');
     }
 
     public function pilots(): BelongsToMany
     {
-        return $this->belongsToMany(Person::class, 'person_starship', 'starship_id', 'person_id');
+        return $this->belongsToMany(Person::class, PivotTables::PERSON_STARSHIP, 'starship_id', 'person_id');
     }
 }

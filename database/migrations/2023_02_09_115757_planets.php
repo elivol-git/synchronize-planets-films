@@ -27,7 +27,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('population')->nullable();
                 $table->timestamp('created')->nullable();
                 $table->timestamp('edited')->nullable();
-                $table->string('url')->default('');
+                $table->string('url')->unique();
                 $table->timestamps();
             });
         }

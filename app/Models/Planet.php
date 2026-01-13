@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\PivotTables;
+use App\Models\Traits\NormalizeNumbers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Planet extends Model
 {
-    use HasFactory;
+    use HasFactory, NormalizeNumbers;
     protected $table = 'planets';
     protected $fillable = [
         'name',
@@ -35,14 +37,25 @@ class Planet extends Model
         'edited' => 'datetime',
     ];
 
+    public function numeric(): array
+    {
+        return [
+            'surface_water',
+            'population',
+            'rotation_period',
+            'orbital_period',
+            'diameter',
+        ];
+    }
+
     public function films(): BelongsToMany
     {
-        return $this->belongsToMany(Film::class, 'film_planet');
+        return $this->belongsToMany(Film::class, PivotTables::FILM_PLANET);
     }
 
     public function people(): BelongsToMany
     {
-        return $this->belongsToMany(Person::class, 'film_person');
+        return $this->belongsToMany(Person::class, PivotTables::PLANET_PERSON);
     }
 
 }

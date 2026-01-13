@@ -2,14 +2,26 @@
 
 namespace App\Models\Traits;
 
+use Illuminate\Database\Eloquent\Model;
+
 trait NormalizeNumbers
 {
-    protected function normalizeNumber($value)
+    protected static function bootNormalizeNumbers(): void
     {
-        if (is_null($value) || strtolower($value) === 'unknown') {
-            return null;
-        }
-        $number = preg_replace('/[^0-9.]/', '', $value);
-        return $number !== '' ? (float)$number : null;
+        static::saving(function (Model $model) {
+            if (! method_exists($model, 'numeric')) {
+                return;
+            }
+
+            foreach ($model->numeric() as $field) {
+                $model->{$field} = $model->normalizeNumber($model->{$field});
+            }
+        });
+    }
+
+
+    protected function normalizeNumber($value): ?float
+    {
+        return is_numeric($value) ? (float) $value : null;
     }
 }

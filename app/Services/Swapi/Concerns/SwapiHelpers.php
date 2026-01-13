@@ -53,4 +53,20 @@ trait SwapiHelpers
 
         return (int) basename(rtrim($url, '/'));
     }
+
+    protected function getNextPage(?string $pageUrl): ?array
+    {
+        if(!empty($pageUrl)) {
+            $page = $this->fetchJsonWithCache($pageUrl);
+            if(!$page) {
+                throw new \RuntimeException('Data fetch failed: '.$pageUrl);
+            }
+            $this->assertValidJson($page);
+        } else {
+            $page = null;
+        }
+
+        return $page;
+    }
+
 }

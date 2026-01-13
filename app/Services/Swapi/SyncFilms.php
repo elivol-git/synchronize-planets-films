@@ -4,6 +4,7 @@ namespace App\Services\Swapi;
 
 use App\Models\Film;
 use App\Services\Swapi\Concerns\SwapiHelpers;
+use App\Services\Swapi\Relationships\SwapiRelationshipHandler;
 
 class SyncFilms extends AbstractSwapiService
 {
@@ -13,17 +14,15 @@ class SyncFilms extends AbstractSwapiService
     {
         $data = $this->fetchJsonWithCache($url);
 
-        unset(
-            $data['characters'],
-            $data['planets'],
-            $data['species'],
-            $data['vehicles'],
-            $data['starships']
-        );
+        return $this->storeFromData($data);
+    }
 
-        return Film::firstOrCreate(
-            ['url' => $data['url']],
-            $data
-        );
+    public function storeFromData(array $data): Film
+    {
+        if (empty($data['url'])) {
+            throw new \LogicException('Film URL is required for sync');
+        }
+
+        return Film::updateOrCreate(['url' => $data['url']], $data);
     }
 }

@@ -16,11 +16,10 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule):void
     {
-        //@todo unmark
-        /*$schedule->job(new \App\Jobs\SynchronizePlanetsJob())
-            ->everyMinute()
+        $schedule->job(new \App\Jobs\SynchronizePlanetsJob())
+            ->everyOddHour()
             ->withoutOverlapping()
-            ->onOneServer();*/
+            ->onOneServer();
     }
 
     /**

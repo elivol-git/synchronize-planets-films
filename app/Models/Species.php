@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pivots\PivotTables;
 use App\Models\Traits\NormalizeNumbers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,17 +25,26 @@ class Species extends Model
         'hair_colors',
         'eye_colors',
         'average_lifespan',
+        'homeworld',
         'homeworld_id',
         'language',
+        'url',
+        'created',
+        'edited',
     ];
-    public function setAverageHeightAttribute($value): void
-    {
-        $this->attributes['average_height'] = $this->normalizeNumber($value);
-    }
 
-    public function setAverageLifespanAttribute($value): void
+    protected $casts = [
+        'homeworld_id' => 'integer',
+        'created' => 'datetime',
+        'edited' => 'datetime',
+    ];
+
+    public function numeric(): array
     {
-        $this->attributes['average_lifespan'] = $this->normalizeNumber($value);
+        return [
+            'average_height',
+            'average_lifespan',
+        ];
     }
 
     public function homeworld(): BelongsTo
@@ -44,11 +54,11 @@ class Species extends Model
 
     public function films(): BelongsToMany
     {
-        return $this->belongsToMany(Film::class, 'film_species', 'species_id', 'film_id');
+        return $this->belongsToMany(Film::class, PivotTables::FILM_SPECIES, 'species_id', 'film_id');
     }
 
-    public function people()
+    public function people(): BelongsToMany
     {
-        return $this->hasMany(Person::class, 'species_id');
+        return $this->belongsToMany(Person::class, PivotTables::PERSON_SPECIES, 'species_id');
     }
 }

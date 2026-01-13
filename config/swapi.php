@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Pivots\PivotTables;
+
 return [
 
     /*
@@ -9,15 +11,16 @@ return [
     */
 
     'pivot_tables' => [
-        'film_planet',
-        'film_person',
-        'film_species',
-        'film_vehicle',
-        'film_starship',
+        PivotTables::PLANET_PERSON,
+        PivotTables::FILM_PLANET,
+        PivotTables::FILM_PERSON,
+        PivotTables::FILM_SPECIES,
+        PivotTables::FILM_VEHICLE,
+        PivotTables::FILM_STARSHIP,
 
-        'person_species',
-        'person_vehicle',
-        'person_starship',
+        PivotTables::PERSON_SPECIES,
+        PivotTables::PERSON_VEHICLE,
+        PivotTables::PERSON_STARSHIP,
     ],
 
     'models' => [
