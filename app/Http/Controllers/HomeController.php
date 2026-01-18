@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Planet;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
@@ -17,7 +18,10 @@ class HomeController extends Controller
             'people.starships',
         ])->paginate(12);
 
-        return view('home', compact('planets'));
+        $lastUpdated = Planet::max('updated_at');
+        $lastUpdated = $lastUpdated ? Carbon::parse($lastUpdated) : null;
+
+        return view('home', compact('planets', 'lastUpdated'));
     }
 
 }

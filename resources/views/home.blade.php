@@ -12,4 +12,5 @@
         {{ $planets->links('vendor.pagination.starwars') }}
     </div>
 
+    @include('partials.footer')
 @endsection
