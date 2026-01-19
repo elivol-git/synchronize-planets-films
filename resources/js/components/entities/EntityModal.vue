@@ -5,6 +5,7 @@
             class="modal-backdrop"
             @click.self="closeAll"
         >
+            <!-- MAIN MODAL -->
             <transition name="scale">
                 <div
                     ref="modalRef"
@@ -13,6 +14,7 @@
                 >
                     <button class="modal-close" @click="closeAll">×</button>
 
+                    <!-- Breadcrumb -->
                     <div v-if="stack.length > 1" class="breadcrumb">
                         <span
                             v-for="(item, i) in stack"
@@ -29,6 +31,7 @@
                         {{ entity.title || entity.name }}
                     </h3>
 
+                    <!-- FILM -->
                     <div v-if="isFilm" class="film-info">
                         <div class="planet-info">
                             <div
@@ -46,6 +49,7 @@
                         </div>
                     </div>
 
+                    <!-- NON-FILM -->
                     <div v-else class="planet-info">
                         <div
                             v-for="(value, key) in info"
@@ -57,6 +61,7 @@
                         </div>
                     </div>
 
+                    <!-- RELATED -->
                     <div v-if="columns.length" class="related-columns">
                         <div
                             v-for="col in columns"
@@ -143,9 +148,16 @@ const modalRef = ref(null);
 
 const entity = computed(() => stack.value.at(-1));
 
+/* =========================
+   KEYBOARD
+========================= */
 const onKey = (e) => {
-    if (e.key === 'Escape') closeAll();
+    if (e.key === 'Escape') {
+        closeTooltip();
+        closeAll();
+    }
 };
+
 onMounted(() => window.addEventListener('keydown', onKey));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 
@@ -154,10 +166,16 @@ const closeAll = () => {
     emit('close');
 };
 
+/* =========================
+   ENTITY TYPE
+========================= */
 const isFilm = computed(() =>
     entity.value?.episode_id !== undefined
 );
 
+/* =========================
+   INFO FILTERING
+========================= */
 const exclude = [
     'id','url',
     'films','people','residents',
@@ -167,17 +185,21 @@ const exclude = [
     'opening_crawl'
 ];
 
-const info = computed(() =>
+const getInfo = (obj) =>
     Object.fromEntries(
-        Object.entries(entity.value)
+        Object.entries(obj || {})
             .filter(([k,v]) =>
                 !exclude.includes(k) &&
                 typeof v !== 'object' &&
                 v
             )
-    )
-);
+    );
 
+const info = computed(() => getInfo(entity.value));
+
+/* =========================
+   RELATED
+========================= */
 const normalize = (v) =>
     Array.isArray(v) ? v : v?.data ?? [];
 
@@ -196,7 +218,9 @@ const visibleItems = (col) =>
 const toggleMore = (key) =>
     expanded.value[key] = !expanded.value[key];
 
-
+/* =========================
+   TOOLTIP
+========================= */
 const tooltip = ref({ entity:null, x:0, y:0 });
 
 const openTooltip = (item, evt) => {
@@ -207,10 +231,8 @@ const openTooltip = (item, evt) => {
     let x = evt.clientX + pad;
     let y = evt.clientY + pad;
 
-    if (x + w > window.innerWidth)
-        x = evt.clientX - w - pad;
-    if (y + h > window.innerHeight)
-        y = evt.clientY - h - pad;
+    if (x + w > window.innerWidth) x = evt.clientX - w - pad;
+    if (y + h > window.innerHeight) y = evt.clientY - h - pad;
 
     tooltip.value = { entity:item, x, y };
 };
@@ -227,23 +249,17 @@ const tooltipStyle = computed(() => ({
 }));
 
 const tooltipInfo = computed(() =>
-    tooltip.value.entity
-        ? Object.fromEntries(
-            Object.entries(tooltip.value.entity)
-                .filter(([k,v]) =>
-                    !exclude.includes(k) &&
-                    typeof v !== 'object' &&
-                    v
-                )
-        )
-        : {}
+    tooltip.value.entity ? getInfo(tooltip.value.entity) : {}
 );
 
 const drillDown = (item) => {
-    tooltip.value.entity = null;
+    closeTooltip();
     stack.value.push(item);
 };
 
+/* =========================
+   NAV
+========================= */
 const goTo = (i) => {
     stack.value = stack.value.slice(0, i + 1);
 };
