@@ -1,3 +1,9 @@
+.planet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
 .planet-card {
     background: #0f0f0f;
     border: 1px solid #f5d76e;
@@ -6,6 +12,7 @@
     color: #f5d76e;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 .planet-title {
     margin: 0 0 .75rem;
@@ -151,7 +158,6 @@
     gap: 20px;
     margin-bottom: 14px;
 }
-
 .crawl {
     font-size: 0.85rem;
     line-height: 1.4;
@@ -249,13 +255,11 @@
     z-index: 1000;
     box-shadow: 0 0 20px rgba(0,0,0,.6);
 }
-
 .tooltip-title {
     color: #ffd700;
     font-size: 1rem;
     margin-bottom: 8px;
 }
-
 .tooltip-close {
     position: absolute;
     top: 6px;
@@ -266,10 +270,6 @@
     font-size: 1.2rem;
     cursor: pointer;
 }
-/* =========================
-   STAR WARS PAGINATION
-========================= */
-
 .pagination-wrapper {
     margin: 40px 0;
     display: flex;
@@ -320,9 +320,6 @@
     opacity: 0.6;
     padding: 0 6px;
 }
-/* =========================
-   FOOTER
-========================= */
 .app-footer {
     margin-top: 40px;
     padding: 20px 0;
@@ -333,14 +330,31 @@
     font-size: 0.75rem;
     color: rgba(255,255,255,0.7);
 }
+@media (max-width: 1024px) {
+    .planet-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
 
 @media (max-width: 768px) {
-    .tab {
-        font-size: 0.7rem;
-        padding: 5px 0;
+    .planet-grid, .film-info ,.related-columns{
+        grid-template-columns: 1fr;
+    }
+    .planet-card {
+        padding: 0.9rem;
+    }
+    .planet-title {
+        font-size: 1.25rem;
+    }
+    .entity-link {
+        font-size: 12px;
     }
     .planet-links {
         grid-template-columns: 1fr;
+    }
+    .tab {
+        font-size: 0.7rem;
+        padding: 5px 0;
     }
     .sw-page {
         min-width: 32px;
@@ -352,4 +366,34 @@
         gap: 8px;
         text-align: center;
     }
+    .entity-tooltip {
+        position: fixed;
+        top: 12vh;
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+        max-width: calc(100vw - 32px);
+        width: 100%;
+        z-index: 2000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    .modal-backdrop {
+        align-items: flex-start;
+        padding-top: 8vh;
+    }
+
+    .modal-window {
+        max-height: 80vh;
+    }
+    .tooltip-title {
+        text-align: center;
+        font-size: 1.05rem;
+    }
+    .entity-tooltip {
+        height: fit-content;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
 }

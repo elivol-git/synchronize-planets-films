@@ -5,7 +5,6 @@
             class="modal-backdrop"
             @click.self="closeAll"
         >
-            <!-- MAIN MODAL -->
             <transition name="scale">
                 <div
                     ref="modalRef"
@@ -14,7 +13,6 @@
                 >
                     <button class="modal-close" @click="closeAll">×</button>
 
-                    <!-- Breadcrumb -->
                     <div v-if="stack.length > 1" class="breadcrumb">
                         <span
                             v-for="(item, i) in stack"
@@ -95,43 +93,21 @@
                 </div>
             </transition>
 
-            <!-- TOOLTIP -->
-            <transition name="fade">
-                <div
-                    v-if="tooltip.entity"
-                    class="modal-window"
-                    :style="tooltipStyle"
-                >
-                    <button class="modal-close" @click="closeTooltip">×</button>
+            <EntityTooltip
+                :entity="tooltip.entity"
+                :x="tooltip.x"
+                :y="tooltip.y"
+                @close="closeTooltip"
+                @open="drillDown"
+            />
 
-                    <h4 class="planet-title">
-                        {{ tooltip.entity.name || tooltip.entity.title }}
-                    </h4>
-
-                    <div class="planet-info">
-                        <div
-                            v-for="(value, key) in tooltipInfo"
-                            :key="key"
-                            class="planet-info-row"
-                        >
-                            <span class="label">{{ format(key) }}</span>
-                            <span class="value">{{ value }}</span>
-                        </div>
-                    </div>
-
-                    <div
-                        class="entity-link more"
-                        @click="drillDown(tooltip.entity)"
-                    >
-                        Open
-                    </div>
-                </div>
-            </transition>
         </div>
     </transition>
 </template>
 
 <script setup>
+import EntityTooltip from './EntityTooltip.vue';
+
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 const LIMIT = 5;
@@ -148,9 +124,6 @@ const modalRef = ref(null);
 
 const entity = computed(() => stack.value.at(-1));
 
-/* =========================
-   KEYBOARD
-========================= */
 const onKey = (e) => {
     if (e.key === 'Escape') {
         closeTooltip();
@@ -166,16 +139,10 @@ const closeAll = () => {
     emit('close');
 };
 
-/* =========================
-   ENTITY TYPE
-========================= */
 const isFilm = computed(() =>
     entity.value?.episode_id !== undefined
 );
 
-/* =========================
-   INFO FILTERING
-========================= */
 const exclude = [
     'id','url',
     'films','people','residents',
@@ -197,9 +164,6 @@ const getInfo = (obj) =>
 
 const info = computed(() => getInfo(entity.value));
 
-/* =========================
-   RELATED
-========================= */
 const normalize = (v) =>
     Array.isArray(v) ? v : v?.data ?? [];
 
@@ -218,9 +182,6 @@ const visibleItems = (col) =>
 const toggleMore = (key) =>
     expanded.value[key] = !expanded.value[key];
 
-/* =========================
-   TOOLTIP
-========================= */
 const tooltip = ref({ entity:null, x:0, y:0 });
 
 const openTooltip = (item, evt) => {
@@ -240,26 +201,11 @@ const openTooltip = (item, evt) => {
 const closeTooltip = () =>
     tooltip.value.entity = null;
 
-const tooltipStyle = computed(() => ({
-    position:'fixed',
-    left: tooltip.value.x + 'px',
-    top: tooltip.value.y + 'px',
-    zIndex:1001,
-    maxWidth:'360px'
-}));
-
-const tooltipInfo = computed(() =>
-    tooltip.value.entity ? getInfo(tooltip.value.entity) : {}
-);
-
 const drillDown = (item) => {
     closeTooltip();
     stack.value.push(item);
 };
 
-/* =========================
-   NAV
-========================= */
 const goTo = (i) => {
     stack.value = stack.value.slice(0, i + 1);
 };

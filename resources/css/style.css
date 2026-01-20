@@ -29,9 +29,3 @@ body {
     color: #f5d76e;
 }
 
-.planet-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 1.5rem;
-    align-items: stretch; /* equal row height */
-}
