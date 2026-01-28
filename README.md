@@ -1,94 +1,235 @@
-# 🌌 Star Wars - Laravel backend with Vue.js frontend that synchronizes Star Wars planet data from SWAPI into MySQL and presents it via paginated UI views.
+# 🌌 Star Wars Data Explorer
+### Laravel Backend + Vue 3 (Vite) Frontend
 
-This Laravel project synchronizes **Star Wars planets and their related films** from  
-the public API **https://swapi.dev** into a local MySQL database.  
-It also includes a scheduler-ready command, Horizon monitoring, and Supervisor setup.
+This project synchronizes **Star Wars planets and their related entities** from the public API  
+**https://swapi.dev** into a local **MySQL** database using **Laravel 12**,  
+and displays the data through a **Vue 3 frontend powered by Vite**.
+
+---
 
 ## 🚀 Features
 
-- Fetch & store planets and the related entities from SWAPI
-- MySQL storage with relational tables
-- Artisan command to sync data anytime
-- Laravel Horizon dashboard for queue monitoring
-- Supervisor integration for production queue workers
+- 🔄 Sync planets, films, residents and related entities from SWAPI
+- 🗄 MySQL relational database structure
+- ⚙️ Artisan command for scheduled/manual synchronization
+- 📊 Laravel Horizon for queue monitoring
+- 🧵 Supervisor support for production queues
+- ⚡ Vue 3 frontend with Vite bundler
+- 📄 Paginated planet listing UI
+
+---
 
 ## 📁 Project Structure
 
+```
 app/
-├── Console/Commands/       # create:sync-planets command
-├── Models/                 # Planet and Film models
-└── Services/               # SynchronizePlanetsProcedure service
+├── Console/Commands/       # swapi:sync command
+├── Models/                 # Planet, Film, Person models
+└── Services/Swapi/         # Synchronization service
 
 database/
-├── migrations/             # Migrations for planets & films tables
-└── seeders/                # Optional seeders
+├── migrations/             # DB schema
+└── seeders/
+
+resources/
+├── js/
+│   ├── app.js              # Vite entry
+│   ├── bootstrap.js
+│   └── vue/
+│       ├── App.vue
+│       └── components/
+│           └── PlanetList.vue
+└── views/
+    └── app.blade.php       # Vue mounting point
 
 routes/
-└── web.php                 # Landing page displaying planets/films
+└── web.php
 
-resources/views/
-└── ...                     # Blade templates
+vite.config.js
+```
+
+---
 
 ## ✅ Requirements
 
-- PHP 8.2+
-- Laravel 12
-- MySQL 8+
+### Backend
+- PHP **8.2+**
+- Laravel **12**
+- MySQL **8+**
 - Composer
-- Ubuntu: php-curl package
+- Redis (for queues)
+- Ubuntu package:
+  ```bash
+  sudo apt install php-curl
+  ```
+
+### Frontend
+- Node.js **18+**
+- NPM or Yarn
+
+---
 
 ## 🛠 Installation & Setup
 
-git clone https://github.com/elivol-git/star-wars-data-explorer.git
-cd planets
+### 1️⃣ Clone Repository
 
+```bash
+git clone https://github.com/elivol-git/star-wars-data-explorer.git
+cd star-wars-data-explorer
+```
+
+---
+
+### 2️⃣ Install PHP Dependencies
+
+```bash
 composer install
+```
+
+```bash
 cp .env.example .env
 php artisan key:generate
+```
 
-Update `.env`:
+---
 
+### 3️⃣ Configure Environment
+
+Edit `.env`:
+
+```env
 DB_DATABASE=planets
 DB_USERNAME=planets_user
 DB_PASSWORD=your_strong_password
 
+QUEUE_CONNECTION=redis
+```
+
+---
+
 ## 🗄 MySQL Database Setup
 
+```sql
 CREATE DATABASE planets CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE USER 'planets_user'@'localhost' IDENTIFIED BY 'your_strong_password';
+CREATE USER 'planets_user'@'localhost'
+IDENTIFIED BY 'your_strong_password';
 
-GRANT ALL PRIVILEGES ON planets.* TO 'planets_user'@'localhost';
+GRANT ALL PRIVILEGES ON planets.*
+TO 'planets_user'@'localhost';
 
 FLUSH PRIVILEGES;
+```
 
-## 🧱 Create Database Tables (Migrations)
+---
 
+## 🧱 Run Migrations
+
+```bash
 php artisan migrate
+```
+
+---
 
 ## 🔄 Synchronize SWAPI Data
 
-php artisan create:sync-planets
+```bash
+php artisan swapi:sync
+```
 
-## 📊 Laravel Horizon (Queue Dashboard)
+This command can also be scheduled via Laravel Scheduler.
 
+---
+
+# ⚡ Vue 3 + Vite Frontend Setup
+
+## 📦 Install Node Dependencies
+
+```bash
+npm install
+```
+
+or
+
+```bash
+yarn install
+```
+
+---
+
+## ▶ Run Vite Dev Server
+
+```bash
+npm run dev
+```
+
+Vite will start at:
+
+```
+http://localhost:5173
+```
+
+Laravel will load assets automatically via Vite.
+
+---
+
+## 🏗 Build Frontend for Production
+
+```bash
+npm run build
+```
+
+Compiled files will be placed in:
+
+```
+public/build
+```
+
+---
+
+## 🧩 Vite Configuration
+
+`vite.config.js`:
+
+```js
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import vue from '@vitejs/plugin-vue';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/js/app.js'],
+            refresh: true,
+        }),
+        vue(),
+    ],
+});
+```
+
+---
+
+## 📊 Laravel Horizon
+
+### Install
+
+```bash
 composer require laravel/horizon
 php artisan horizon:install
 php artisan migrate
+```
 
-Access dashboard:
+### Access Dashboard
 
-http://film-planets.test/horizon
+```
+http://your-domain.test/horizon
+```
 
-## 🖥 Supervisor Setup (Production Only)
+---
 
-sudo apt update
-sudo apt install supervisor
-sudo systemctl enable supervisor
-sudo systemctl start supervisor
+## 🖥 Supervisor Configuration (Production)
 
-Create Horizon config:
-
+```ini
 [program:horizon]
 process_name=%(program_name)s
 command=php /var/www/planets/artisan horizon
@@ -98,39 +239,74 @@ user=www-data
 redirect_stderr=true
 stdout_logfile=/var/www/planets/storage/logs/horizon.log
 stopwaitsecs=3600
+```
 
+```bash
 sudo supervisorctl reread
 sudo supervisorctl update
 sudo supervisorctl start horizon
+```
 
-## ▶ Development Server
+---
 
+## ▶ Run Laravel Server
+
+```bash
 php artisan serve
+```
+
+Open:
+
+```
+http://127.0.0.1:8000
+```
+
+---
 
 ## 🧰 Useful Artisan Commands
 
 | Action | Command |
-|--------|---------|
-| Migrate DB | php artisan migrate |
-| Sync data | php artisan create:sync-planets |
-| Clear caches | php artisan optimize:clear |
-| Start Horizon | php artisan horizon |
+|------|------|
+| Migrate DB | `php artisan migrate` |
+| Sync SWAPI | `php artisan swapi:sync` |
+| Clear cache | `php artisan optimize:clear` |
+| Horizon | `php artisan horizon` |
+| Queue worker | `php artisan queue:work` |
 
-## 🔐 Fix Linux Permissions (if needed)
+---
 
+## 🔐 Linux Permissions Fix
+
+```bash
 sudo chown -R $USER:www-data storage bootstrap/cache
 sudo chmod -R 775 storage bootstrap/cache
+```
+
+---
 
 ## ❗ Troubleshooting
 
-Permission denied on laravel.log  
-sudo chmod -R 775 storage/logs
+### Permission denied (laravel.log)
 
-Redis “Connection refused”  
+```bash
+sudo chmod -R 775 storage/logs
+```
+
+### Redis connection refused
+
+```bash
 sudo apt install redis-server
 sudo systemctl enable redis
 sudo systemctl start redis
+```
+
+---
 
 ## 📜 License
 
-Open-source. Free to use & modify.
+Open-source.  
+Free to use, modify, and distribute.
+
+---
+
+✨ **May the Force be with your code.**
