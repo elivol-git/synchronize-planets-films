@@ -1,4 +1,4 @@
-# 🌌 Film & Planets Synchronizer (SWAPI → Laravel)
+# 🌌 Star Wars - Laravel backend with Vue.js frontend that synchronizes Star Wars planet data from SWAPI into MySQL and presents it via paginated UI views.
 
 This Laravel project synchronizes **Star Wars planets and their related films** from  
 the public API **https://swapi.dev** into a local MySQL database.  
@@ -6,7 +6,7 @@ It also includes a scheduler-ready command, Horizon monitoring, and Supervisor s
 
 ## 🚀 Features
 
-- Fetch & store planets and their films from SWAPI
+- Fetch & store planets and the related entities from SWAPI
 - MySQL storage with relational tables
 - Artisan command to sync data anytime
 - Laravel Horizon dashboard for queue monitoring
@@ -39,7 +39,7 @@ resources/views/
 
 ## 🛠 Installation & Setup
 
-git clone https://github.com/your/repo.git
+git clone https://github.com/elivol-git/star-wars-data-explorer.git
 cd planets
 
 composer install
